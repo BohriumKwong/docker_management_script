@@ -21,18 +21,17 @@
 ##  程序执行流程
 ```mermaid
 graph TD;
-	printE[程序开始]
-    printE --> condictionF{检查系统是否有安装docker以及用户是否有权限}
-    condictionF -- 通过 --> printA[进入主菜单]
-    printA --> condictionC{选择具体操作}
-    condictionC -- 信息查看--> printG[查看docker版本/容器/镜像相关信息]
-    printG -- 继续其他操作--> printA[进入主菜单]
-    printG -- 退出--> stop[结束]
-    condictionC -- 容器操作 --> printB[创建/删除/启动/停止容器]
-    printB -- 继续其他操作--> printA[进入主菜单]
-    printB -- 退出--> stop[结束]
-    condictionF -- 不通过 --> stop[结束]
-
+printE[程序开始]
+printE --> condictionF{检查系统是否有安装docker以及用户是否有权限}
+condictionF -- 通过 --> printA[进入主菜单]
+printA --> condictionC{选择具体操作}
+condictionC -- 信息查看--> printG[查看docker版本/容器/镜像相关信息]
+printG -- 继续其他操作--> printA[进入主菜单]
+printG -- 退出--> stop[结束]
+condictionC -- 容器操作 --> printB[创建/删除/启动/停止容器]
+printB -- 继续其他操作--> printA[进入主菜单]
+printB -- 退出--> stop[结束]
+condictionF -- 不通过 --> stop[结束]
 ```
 
 ## 关于创建VNC容器
