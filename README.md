@@ -20,8 +20,7 @@
 如果是docker用户组的用户，可以直接运行: ```sh docker_script.sh```
 ##  程序执行流程
 ```mermaid
-graph TD
-
+graph TD;
 	printE[程序开始]
     printE --> condictionF{检查系统是否有安装docker以及用户是否有权限}
     condictionF -- 通过 --> printA[进入主菜单]
