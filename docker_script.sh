@@ -162,12 +162,13 @@ script="$script:/media$vnc_name --runtime=nvidia -e VNC_PASSWORD=$sub_password $
 
 docker_view="`$script`"
 #container_id=${docker_view:0:12}
-vnt=`cat vnc.info|wc -l`
+
 a='a'
 if [ -f vnc.info ]; then
+    vnt=`cat vnc.info|wc -l`
     sed -i "$vnt$a$docker_view $s_port $sub_password" vnc.info
 else
-    echo "$vnt$a$docker_view $s_port $sub_password">>vnc.info
+    echo "0$a$docker_view $s_port $sub_password">>vnc.info
 fi
 
 echo "虚拟机 $container_id 已成功创建"
@@ -269,7 +270,7 @@ echo -e "  Docker 一键管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_
   ${Green_font_prefix}0.${Font_color_suffix} 退出程序
  "
  
-echo && stty erase '^H' && read -p "请输入数字 [1-15]：" num
+echo && stty erase '^H' && read -p "请输入数字 [0-8]：" num
 case "$num" in
 	1)
 	view_docker 'docker version'
@@ -299,7 +300,7 @@ case "$num" in
 	exit 0
 	;;
 	*)
-	echo -e "${Error} 请输入正确的数字 [0-9]"
+	echo -e "${Error} 请输入正确的数字 [0-8]"
 	menu_status
 	;;
 esac
