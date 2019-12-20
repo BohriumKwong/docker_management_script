@@ -125,7 +125,7 @@ do
          esac
 done
 
-script="docker run -d -p $s_port:80 --shm-size 3g -v $sub_dir"
+script="docker run -d -p $s_port:80 --shm-size 1g -v $sub_dir"
 
 echo && stty erase '^H' && read -p "Please name this new VNC(Input letter 'n' to generate by docker,the naming rules is [a-zA-Z0-9][a-zA-Z0-9_.-]):" s_name
          case "$s_name" in

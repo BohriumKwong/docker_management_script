@@ -125,7 +125,7 @@ do
          esac
 done
 
-script="docker run -d -p $s_port:80 --shm-size 3g -v $sub_dir"
+script="docker run -d -p $s_port:80 --shm-size 1g -v $sub_dir"
 
 echo && stty erase '^H' && read -p "请为新建虚拟机命名(输入'n'代表由系统随机命名,命名遵从[a-zA-Z0-9][a-zA-Z0-9_.-])：" s_name
          case "$s_name" in
