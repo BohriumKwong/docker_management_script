@@ -203,51 +203,80 @@ start_stop_delete_container(){
            flag="removed"
 	   f="rm"
 	   s=0
+        elif [ $1 -eq 3 ]; then
+           docker_view=`docker ps`
+           echo "Container which are running as below:"
+           flag="restarted"
+           f="restart"
+           s=1
 
 	else
            menu_status
+        fi
+
+	if [ -f p.sctmp ]; then
+	   rm p.sctmp
         fi
 
 	echo "$docker_view"
 	echo "$docker_view">>p.sctmp
         vnt=`cat p.sctmp|wc -l`
 	vnt=`expr $vnt - $s`
-	echo && stty erase '^H' && read -p "sequence number of container [1-$vnt]:" num
-	until [ "$num" -gt 0 -a "$num" -le $vnt ] 2>/dev/null
-	do
-                echo "Input not correct,make sure the numeral you input is between 1 and  $vnt :"
-		echo && stty erase '^H' && read -p "Please input:" num
-	done
-	num=`expr $num + $s`
-	echo && stty erase '^H' && read -p "Are you sure to $flag container(Input letter 'y' to execute,other keys to cancel) :" sc
-	 case "$sc" in
-	  'y')		
-	   cat p.sctmp| awk 'NR=="'"$num"'"' |while read CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                  PORTS                  NAMES
-	   do
-	   	echo "`docker $f $CONTAINER`"
-                echo "Container $CONTAINER has been $flag successfully!"
-                if [ $1 -eq 2 ];then
-                  sed -i "/${CONTAINER}/d" vnc.info
-		  vnt=`cat vnc.info|wc -l`
-		  if [ $vnt -eq 0 ];then
-			rm vnc.info
-		  fi
-                fi
-	   done
-           ;;
-	   *)
-	    echo "Container will not be $flag,since the  operation has benn cancelled."
-	   ;;
-         esac
-	rm p.sctmp
-	echo && stty erase '^H' && read -p "Input numeral 0 to exit，other keys to return to home menu:" num
+	echo && stty erase '^H' && read -p "please input sequence number of the container [1-$vnt],or input 0 to return home menu :" num
+
 	case "$num" in
-	 0)
-	 exit 0
-	 ;;
-	 *)
-	 menu_status
-	 ;;
+	   0)
+           menu_status
+           ;;
+           *)
+	   until [ "$num" -ge 0 -a "$num" -le $vnt ] 2>/dev/null
+	   do
+                echo "Input not correct,make sure you input is 0 or the numeral between 1 and  $vnt :"
+		echo && stty erase '^H' && read -p "Please input again: " num
+	   done
+        
+	   case "$num" in
+	      0)
+              menu_status
+              ;;
+              *)
+        
+	      num=`expr $num + $s`
+	      echo && stty erase '^H' && read -p "Are you sure to $f container(Input letter 'y' to execute,other keys to cancel) :" sc
+	      case "$sc" in
+	         'y')		
+	          cat p.sctmp| awk 'NR=="'"$num"'"' |while read CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                  PORTS                  NAMES
+	          do
+	   	    echo "`docker $f $CONTAINER`"
+                    echo "Container $CONTAINER has been $flag successfully!"
+                    if [ $1 -eq 2 ];then
+                       sed -i "/${CONTAINER}/d" vnc.info
+		       vnt=`cat vnc.info|wc -l`
+		       if [ $vnt -eq 0 ];then
+			  rm vnc.info
+		       fi
+                    fi
+	          done
+                 ;;
+	         *)
+	         echo "Container will not be $flag,since the  operation has benn cancelled."
+	         ;;
+              esac
+	      rm p.sctmp
+	      echo && stty erase '^H' && read -p "Input numeral 0 to exit，other keys to return to home menu:" num
+	      case "$num" in
+	         0)
+	         exit 0
+	         ;;
+	         *)
+	         menu_status
+	         ;;
+              esac
+
+           ;;
+           esac
+
+        ;;
         esac
 
 }
@@ -266,11 +295,12 @@ echo -e "  Docker Management Script ${Red_font_prefix}[v${sh_ver}]${Font_color_s
   ————————————
   ${Green_font_prefix}7.${Font_color_suffix} create container of VNC
   ${Green_font_prefix}8.${Font_color_suffix} remove container
+  ${Green_font_prefix}9.${Font_color_suffix} restart container
   ————————————
   ${Green_font_prefix}0.${Font_color_suffix} exit
  "
  
-echo && stty erase '^H' && read -p "Please input numeral [0-8]:" num
+echo && stty erase '^H' && read -p "Please input numeral [0-9]:" num
 case "$num" in
 	1)
 	view_docker 'docker version'
@@ -296,11 +326,14 @@ case "$num" in
 	8)
 	start_stop_delete_container 2
 	;;
+        9)
+        start_stop_delete_container 3
+        ;;
 	0)
 	exit 0
 	;;
 	*)
-	echo -e "${Error} Please input numeral [0-8]:"
+	echo -e "${Error} Please input numeral [0-9]:"
 	menu_status
 	;;
 esac

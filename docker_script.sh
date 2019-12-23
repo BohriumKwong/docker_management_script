@@ -203,59 +203,86 @@ start_stop_delete_container(){
            flag="删除"
 	   f="rm"
 	   s=0
+        elif [ $1 -eq 3 ]; then
+           docker_view=`docker ps`
+           echo "当前正在运行的容器如下："
+           flag="重启"
+           f="restart"
+           s=1
+
 
 	else
            menu_status
         fi
 
+        if [ -f p.sctmp ]; then
+	   rm p.sctmp
+        fi
 	echo "$docker_view"
 	echo "$docker_view">>p.sctmp
         vnt=`cat p.sctmp|wc -l`
 	vnt=`expr $vnt - $s`
-	echo && stty erase '^H' && read -p "容器序号 [1-$vnt]：" num
-	until [ "$num" -gt 0 -a "$num" -le $vnt ] 2>/dev/null
-	do
-                echo "输入不正确，请输入1 ~ $vnt 之间的数字: "
-		echo && stty erase '^H' && read -p "请输入：" num
-	done
-	num=`expr $num + $s`
-	echo && stty erase '^H' && read -p "请确定是否$flag容器(输入'y'代表确定，其他键代表放弃) ：" sc
-	 case "$sc" in
-	  'y')		
-	   cat p.sctmp| awk 'NR=="'"$num"'"' |while read CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                  PORTS                  NAMES
-	   do
-	   	echo "`docker $f $CONTAINER`"
-                echo "容器 $CONTAINER 已成功$flag !"
-                if [ $1 -eq 2 ];then
-                  sed -i "/${CONTAINER}/d" vnc.info
-		  vnt=`cat vnc.info|wc -l`
-		  if [ $vnt -eq 0 ];then
-			rm vnc.info
-		  fi
-                fi
-	   done
-           ;;
-	   *)
-	    echo "已取消$flag容器"
-	   ;;
-         esac
-	rm p.sctmp
-	echo && stty erase '^H' && read -p "输入数字0退出程序，其他键返回主菜单：" num
-	case "$num" in
-	 0)
-	 exit 0
-	 ;;
-	 *)
-	 menu_status
-	 ;;
-        esac
+	echo && stty erase '^H' && read -p "容器序号 [1-$vnt],或输入0代表取消当前操作返回上级菜单：" num
 
+	case "$num" in
+	   0)
+           menu_status
+           ;;
+           *)
+	   until [ "$num" -ge 0 -a "$num" -le $vnt ] 2>/dev/null
+	   do
+                echo "输入不正确，请输入0,或1 ~ $vnt 之间的数字: "
+		echo && stty erase '^H' && read -p "请输入：" num
+	   done
+        
+	   case "$num" in
+	      0)
+              menu_status
+              ;;
+              *)
+        
+	      num=`expr $num + $s`
+	      echo && stty erase '^H' && read -p "请确定是否$flag容器(输入'y'代表确定，其他键代表放弃) ：" sc
+	      case "$sc" in
+	         'y')		
+	          cat p.sctmp| awk 'NR=="'"$num"'"' |while read CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                  PORTS                  NAMES
+	          do
+	   	    echo "`docker $f $CONTAINER`"
+                    echo "容器 $CONTAINER 已成功$flag !"
+                    if [ $1 -eq 2 ];then
+                       sed -i "/${CONTAINER}/d" vnc.info
+		       vnt=`cat vnc.info|wc -l`
+		       if [ $vnt -eq 0 ];then
+			  rm vnc.info
+		       fi
+                    fi
+	          done
+                 ;;
+	         *)
+	         echo "已取消$flag容器"
+	         ;;
+              esac
+	      rm p.sctmp
+	      echo && stty erase '^H' && read -p "输入数字0退出程序，其他键返回主菜单：" num
+	      case "$num" in
+	         0)
+	         exit 0
+	         ;;
+	         *)
+	         menu_status
+	         ;;
+              esac
+
+           ;;
+           esac
+
+        ;;
+        esac
 }
 
 menu_status(){
 echo -e "  Docker 一键管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
   ---- Bohrium.Kwong ----
-
   ${Green_font_prefix}1.${Font_color_suffix} 查看 docker版本
   ${Green_font_prefix}2.${Font_color_suffix} 查看 当前所有镜像
   ${Green_font_prefix}3.${Font_color_suffix} 查看 正在运行的容器
@@ -266,11 +293,12 @@ echo -e "  Docker 一键管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_
   ————————————
   ${Green_font_prefix}7.${Font_color_suffix} 新建 容器
   ${Green_font_prefix}8.${Font_color_suffix} 删除 容器
+  ${Green_font_prefix}9.${Font_color_suffix} 重启 容器
   ————————————
   ${Green_font_prefix}0.${Font_color_suffix} 退出程序
  "
  
-echo && stty erase '^H' && read -p "请输入数字 [0-8]：" num
+echo && stty erase '^H' && read -p "请输入数字 [0-9]：" num
 case "$num" in
 	1)
 	view_docker 'docker version'
@@ -296,11 +324,14 @@ case "$num" in
 	8)
 	start_stop_delete_container 2
 	;;
+        9)
+        start_stop_delete_container 3
+        ;;
 	0)
 	exit 0
 	;;
 	*)
-	echo -e "${Error} 请输入正确的数字 [0-8]"
+	echo -e "${Error} 请输入正确的数字 [0-9]"
 	menu_status
 	;;
 esac
