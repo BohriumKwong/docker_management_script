@@ -155,7 +155,7 @@ done
 if [ ! -n "$1" ] ;then
     image_code='f98d17213229'
 else
-    image_code = $1
+    image_code=$1
 fi
 
 script="$script:/media$vnc_name --runtime=nvidia -e VNC_PASSWORD=$sub_password $image_code"
@@ -222,7 +222,15 @@ start_stop_delete_container(){
 	echo "$docker_view">>p.sctmp
         vnt=`cat p.sctmp|wc -l`
 	vnt=`expr $vnt - $s`
-	echo && stty erase '^H' && read -p "容器序号 [1-$vnt],或输入0代表取消当前操作返回上级菜单：" num
+	if [ $vnt -gt 1 ]; then
+	    echo && stty erase '^H' && read -p "容器序号 [1-$vnt],或输入0代表取消当前操作返回上级菜单：" num
+        else
+            echo "没有可以$flag的容器，即将返回上级菜单。"
+	    echo ""
+	    rm p.sctmp
+            sleep 1
+            menu_status
+        fi
 
 	case "$num" in
 	   0)
