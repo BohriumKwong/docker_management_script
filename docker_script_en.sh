@@ -217,6 +217,9 @@ start_stop_delete_container(){
 	if [ -f p.sctmp ]; then
 	   rm p.sctmp
         fi
+	if [ -f t.sctmp ]; then
+	   rm t.sctmp
+        fi
 
 #	echo "$docker_view"
 	echo "$docker_view">>p.sctmp
@@ -233,7 +236,7 @@ start_stop_delete_container(){
            sed -i '1d' t.sctmp
         fi
 	nl t.sctmp
-	rm t.sctmp
+
 
 	if [ -n "$docker_view" ]; then
 	   echo && stty erase '^H' && read -p "please input sequence number of the container [1-$vnt],or input 0 to return to home menu :" num
@@ -241,12 +244,15 @@ start_stop_delete_container(){
            echo "There is no container can be $flag,it will be about to return to home menu."
            echo ""
 	   rm p.sctmp
+           rm t.sctmp
            sleep 1
            menu_status
         fi
 
 	case "$num" in
 	   0)
+           rm p.sctmp
+	   rm t.sctmp
            menu_status
            ;;
            *)
@@ -258,16 +264,18 @@ start_stop_delete_container(){
         
 	   case "$num" in
 	      0)
+              rm p.sctmp
+	      rm t.sctmp
               menu_status
               ;;
               *)
-        
-	      num=`expr $num + $s`
-	      echo && stty erase '^H' && read -p "Are you sure to $f container(Input letter 'y' to execute,other keys to cancel) :" sc
+              CONTAINER=`cat t.sctmp |awk 'NR=="'"$num"'"'|awk -F'        ' '{print $1}'`
+#	      num=`expr $num + $s`
+	      echo && stty erase '^H' && read -p "Are you sure to $f container $CONTAINER(Input letter 'y' to execute,other keys to cancel) :" sc
 	      case "$sc" in
 	         'y')		
-	          cat p.sctmp| awk 'NR=="'"$num"'"' |while read CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                  PORTS                  NAMES
-	          do
+#	          cat p.sctmp| awk 'NR=="'"$num"'"' |while read CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                  PORTS                  NAMES
+#	          do
 	   	    echo "`docker $f $CONTAINER`"
                     echo "Container $CONTAINER has been $flag successfully!"
                     if [ $1 -eq 2 ];then
@@ -277,13 +285,14 @@ start_stop_delete_container(){
 			  rm vnc.info
 		       fi
                     fi
-	          done
+#	          done
                  ;;
 	         *)
-	         echo "Container will not be $flag,since the  operation has benn cancelled."
+	         echo "Container $CONTAINER will not be $flag,since the operation has benn cancelled."
 	         ;;
               esac
 	      rm p.sctmp
+	      rm t.sctmp
 	      echo && stty erase '^H' && read -p "Input numeral 0 to exit，other keys to return to home menu:" num
 	      case "$num" in
 	         0)

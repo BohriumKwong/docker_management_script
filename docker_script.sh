@@ -218,6 +218,10 @@ start_stop_delete_container(){
         if [ -f p.sctmp ]; then
 	   rm p.sctmp
         fi
+	if [ -f t.sctmp ]; then
+	   rm t.sctmp
+        fi
+
 #	echo "$docker_view"
 	echo "$docker_view">>p.sctmp
         vnt=`cat p.sctmp|wc -l`
@@ -233,7 +237,6 @@ start_stop_delete_container(){
            sed -i '1d' t.sctmp
         fi
 	nl t.sctmp
-	rm t.sctmp
 	
 	if [ -n "$docker_view" ]; then
 	    echo && stty erase '^H' && read -p "容器序号 [1-$vnt],或输入0代表取消当前操作返回上级菜单：" num
@@ -241,12 +244,15 @@ start_stop_delete_container(){
             echo "没有可以$flag的容器，即将返回上级菜单。"
 	    echo ""
 	    rm p.sctmp
+            rm t.sctmp
             sleep 1
             menu_status
         fi
 
 	case "$num" in
 	   0)
+           rm p.sctmp
+	   rm t.sctmp
            menu_status
            ;;
            *)
@@ -258,16 +264,18 @@ start_stop_delete_container(){
         
 	   case "$num" in
 	      0)
+              rm p.sctmp
+	      rm t.sctmp
               menu_status
               ;;
               *)
-        
-	      num=`expr $num + $s`
-	      echo && stty erase '^H' && read -p "请确定是否$flag容器(输入'y'代表确定，其他键代表放弃) ：" sc
+              CONTAINER=`cat t.sctmp |awk 'NR=="'"$num"'"'|awk -F'        ' '{print $1}'`
+#	      num=`expr $num + $s`	    
+	      echo && stty erase '^H' && read -p "请确定是否$flag容器$CONTAINER(输入'y'代表确定，其他键代表放弃) ：" sc
 	      case "$sc" in
 	         'y')		
-	          cat p.sctmp| awk 'NR=="'"$num"'"' |while read CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                  PORTS                  NAMES
-	          do
+#	          cat p.sctmp| awk 'NR=="'"$num"'"' |while read CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                  PORTS                  NAMES
+#	          do
 	   	    echo "`docker $f $CONTAINER`"
                     echo "容器 $CONTAINER 已成功$flag !"
                     if [ $1 -eq 2 ];then
@@ -277,13 +285,14 @@ start_stop_delete_container(){
 			  rm vnc.info
 		       fi
                     fi
-	          done
-                 ;;
+#	          done
+                  ;;
 	         *)
-	         echo "已取消$flag容器"
+	         echo "已取消$flag容器$CONTAINER"
 	         ;;
               esac
-	      rm p.sctmp
+              rm p.sctmp
+	      rm t.sctmp
 	      echo && stty erase '^H' && read -p "输入数字0退出程序，其他键返回主菜单：" num
 	      case "$num" in
 	         0)
@@ -294,9 +303,8 @@ start_stop_delete_container(){
 	         ;;
               esac
 
-           ;;
+             ;;
            esac
-
         ;;
         esac
 }
