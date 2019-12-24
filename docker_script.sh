@@ -56,7 +56,7 @@ check_docker(){
 	fi
 }
 
-check_root
+check_root_or_dockeruser
 check_sys
 
 if [ "$release" = "debian" ] || [ "$release" = "ubuntu" ] || [ "$release" = "centos" ]; then
@@ -218,11 +218,24 @@ start_stop_delete_container(){
         if [ -f p.sctmp ]; then
 	   rm p.sctmp
         fi
-	echo "$docker_view"
+#	echo "$docker_view"
 	echo "$docker_view">>p.sctmp
         vnt=`cat p.sctmp|wc -l`
 	vnt=`expr $vnt - $s`
-	if [ $vnt -gt 1 ]; then
+
+	echo "$docker_view">>t.sctmp
+	if [ $s -eq 0 ];then
+           title='CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS'
+	   echo "        $title"
+	else
+	   title=`head -1 t.sctmp`
+           echo "        $title"
+           sed -i '1d' t.sctmp
+        fi
+	nl t.sctmp
+	rm t.sctmp
+	
+	if [ -n "$docker_view" ]; then
 	    echo && stty erase '^H' && read -p "容器序号 [1-$vnt],或输入0代表取消当前操作返回上级菜单：" num
         else
             echo "没有可以$flag的容器，即将返回上级菜单。"

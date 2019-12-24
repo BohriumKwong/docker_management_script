@@ -56,7 +56,7 @@ check_docker(){
 	fi
 }
 
-check_root
+check_root_or_dockeruser
 check_sys
 
 if [ "$release" = "debian" ] || [ "$release" = "ubuntu" ] || [ "$release" = "centos" ]; then
@@ -187,25 +187,25 @@ echo "VNC $container_id has been created successfully."
 start_stop_delete_container(){
 	if [ $1 -eq 0 ];then
 	   docker_view=`docker ps -a|grep ted`
-	   echo "Container which not be started as below:"
+	   echo "Containers which are not started yet as below:"
            flag="started"
 	   f="start"
 	   s=0
 	elif [ $1 -eq 1 ]; then
 	   docker_view=`docker ps`
-           echo "Container which are running as below:"
+           echo "Containers which are running as below:"
 	   flag="stopped"
 	   f="stop"
 	   s=1
 	elif [ $1 -eq 2 ];then
 	   docker_view=`docker ps -a|grep ed`
-	   echo "Container which are not running can be removed as below:"
+	   echo "Containers which are not running can be removed as below:"
            flag="removed"
 	   f="rm"
 	   s=0
         elif [ $1 -eq 3 ]; then
            docker_view=`docker ps`
-           echo "Container which are running as below:"
+           echo "Containers which are running as below:"
            flag="restarted"
            f="restart"
            s=1
@@ -218,11 +218,24 @@ start_stop_delete_container(){
 	   rm p.sctmp
         fi
 
-	echo "$docker_view"
+#	echo "$docker_view"
 	echo "$docker_view">>p.sctmp
         vnt=`cat p.sctmp|wc -l`
 	vnt=`expr $vnt - $s`
-	if [ $vnt -gt 1 ]; then
+
+	echo "$docker_view">>t.sctmp
+	if [ $s -eq 0 ];then
+           title='CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS'
+	   echo "        $title"
+	else
+	   title=`head -1 t.sctmp`
+           echo "        $title"
+           sed -i '1d' t.sctmp
+        fi
+	nl t.sctmp
+	rm t.sctmp
+
+	if [ -n "$docker_view" ]; then
 	   echo && stty erase '^H' && read -p "please input sequence number of the container [1-$vnt],or input 0 to return to home menu :" num
         else
            echo "There is no container can be $flag,it will be about to return to home menu."
