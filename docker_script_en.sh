@@ -85,10 +85,10 @@ view_docker(){
 }
 
 input_port(){
-echo && stty erase '^H' && read -p "Please set the port of new VNC(6080~6099):" s_port
-until [ "$s_port" -ge 6080 -a "$s_port" -le 6099 ] 2>/dev/null
+echo && stty erase '^H' && read -p "Please set the port of new VNC(7080~7099):" s_port
+until [ "$s_port" -ge 7080 -a "$s_port" -le 7099 ] 2>/dev/null
    do
-       echo "Input not correct,make sure the numeral you input is between 6080 and 6099: "
+       echo "Input not correct,make sure the numeral you input is between 7080 and 7099: "
        echo && stty erase '^H' && read -p "Please input again:" s_port
    done
 }
@@ -125,7 +125,8 @@ do
          esac
 done
 
-script="docker run -d -p $s_port:80 --shm-size 1g -v $sub_dir"
+#script="docker run -d -p $s_port:80 --shm-size 1g -v $sub_dir"
+script="docker run -d --init --dns 114.114.114.114 -p $s_port:80 --shm-size 1g -v $sub_dir"
 
 echo && stty erase '^H' && read -p "Please name this new VNC(Input letter 'n' to generate by docker,the naming rules is [a-zA-Z0-9][a-zA-Z0-9_.-]):" s_name
          case "$s_name" in
@@ -153,7 +154,7 @@ sub_password=$s_p
 done
 
 if [ ! -n "$1" ] ;then
-    image_code='f98d17213229'
+    image_code='labsys2.1'
 else
     image_code=$1
 fi
