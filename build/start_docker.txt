@@ -1,0 +1,1 @@
+nvidia-docker run -d --dns 114.114.114.114 -e VNCPASSWD=wentai -e RESOLUTION=1280x720x24 --shm-size 1g --init -p 7200:80 labsys2.1
