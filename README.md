@@ -1,4 +1,4 @@
-# DOCKER 一件管理脚本说明
+# DOCKER 一键管理脚本说明
 ```bash
 #!/bin/sh
 ##################################################
@@ -55,7 +55,7 @@ condictionF -- 不通过 --> stop[结束]
 如果上述执行过程中因为网络延迟而出现失败的话,再重新执行就可以
 
 ## ./build ##
-这是总的创建目录目录,包括[Dockerfile](./buildDockerfile)、[startup.sh](./buildstartup.sh)还有[requirements.txt](./buildrequirements.txt)和[sources.list](./buildsources.list)等关键脚本都在其中。其余相关库包,我将其打包放在[百度网盘](),提取码是。
+这是总的创建目录目录,包括[Dockerfile](./buildDockerfile)、[startup.sh](./buildstartup.sh)还有[requirements.txt](./buildrequirements.txt)和[sources.list](./buildsources.list)等关键脚本都在其中。其余相关库包,我将其打包放在[百度网盘](https://pan.baidu.com/s/1FbE5XM5w7QElWT1OvWleQA),提取码是jaik。
 
 
 ## 关于vnc.info文件
