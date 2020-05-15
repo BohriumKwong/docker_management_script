@@ -352,7 +352,7 @@ case "$num" in
 	start_stop_delete_container 1
 	;;
 	7)
-	create_container
+	create_container $1
 	;;
 	8)
 	start_stop_delete_container 2
@@ -369,4 +369,4 @@ case "$num" in
 	;;
 esac
 }
-menu_status		
+menu_status $1	
